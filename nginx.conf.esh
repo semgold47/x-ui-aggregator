@@ -8,11 +8,8 @@ http {
     underscores_in_headers on;
 
     server {
-        listen ${SITE_PORT} ssl;
+        listen ${SITE_PORT};
         server_name ${SITE_HOST};
-
-        ssl_certificate     /etc/nginx/ssl/fullchain.pem;
-        ssl_certificate_key /etc/nginx/ssl/privkey.pem;
 
         location ~ ^/${SUB}/([^/]+)/?$ {
             set $sub_id $1;
