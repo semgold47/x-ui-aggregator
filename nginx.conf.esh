@@ -1,0 +1,22 @@
+worker_processes auto;
+events {
+    worker_connections 1024;
+}
+
+http {
+    proxy_buffering off;
+    underscores_in_headers on;
+
+    server {
+        listen ${SITE_PORT} ssl;
+        server_name ${SITE_HOST};
+
+        ssl_certificate     /etc/nginx/ssl/fullchain.pem;
+        ssl_certificate_key /etc/nginx/ssl/privkey.pem;
+
+        location ~ ^/${SUB}/([^/]+)/?$ {
+            set $sub_id $1;
+            content_by_lua_file /etc/nginx/lua/config_fetcher.lua;
+        }
+    }
+}
