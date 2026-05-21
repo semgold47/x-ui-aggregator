@@ -41,6 +41,7 @@ for idx, base_url in ipairs(servers) do
             if upload then total_upload = total_upload + tonumber(upload) end
             if download then total_download = total_download + tonumber(download) end
 
+            -- Берём total и expire с первого сервера (самого левого в списке SERVERS)
             if idx == 1 then
                 if total then first_total = tonumber(total) end
                 if expire then first_expire = tonumber(expire) end
@@ -49,7 +50,7 @@ for idx, base_url in ipairs(servers) do
             ngx.log(ngx.WARN, "No Subscription-Userinfo header from ", url)
         end
     else
-        ngx.log(ngx.ERR, "Error fetching from ", url, ": ", err)
+        ngx.log(ngx.ERR, "Error fetching from ", url, ": ", err or "status " .. (res and res.status or "unknown"))
     end
 end
 
