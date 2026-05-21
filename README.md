@@ -1,17 +1,18 @@
-# x-ui-aggregator
+# 📋 x-ui-aggregator
 
-Простой агрегатор подписок 3x-UI / Xray, который объединяет конфигурации и суммирует значения `upload`/`download` из заголовков `Subscription-Userinfo`.
+Простой агрегатор подписок 3x-UI / Xray, который объединяет **несколько серверов 3x-ui** в одну общую подписку.  
+Умеет **суммировать трафик** (upload/download) со всех серверов, а лимит (total) и дату истечения (expire) брать с **первого сервера** в списке.  
+Заголовок `Subscription-Userinfo` корректно передаётся клиенту.
 
-> Работает на базе OpenResty + Lua и запускается в Docker-контейнере.
+> Работает на базе OpenResty + Luaб запускается в Docker-контейнере.
 
 ---
 
 ## 🚀 Что делает
 
 - Запрашивает подписки с нескольких серверов 3x-UI
-- Декодирует Base64-конфигурации
 - Объединяет конфигурации в одну
-- Суммирует `upload` и `download` из заголовков `Subscription-Userinfo`
+- Суммирует `upload` и `download` из заголовков `Subscription-Userinfo` чтобы в верху в приложении видеть расход трафика и дату окончания подписки 
 - Возвращает итоговую подписку для клиента
 
 ---
@@ -22,7 +23,6 @@
 - Docker Compose 2.0+
 - Один или несколько серверов с 3x-UI (или совместимой панелью)
 - Одинаковый `subscription-id` для одного пользователя на всех серверах
-- Включённая поддержка `Subscription-Userinfo` на каждом сервере 3x-UI
 
 ---
 
@@ -54,10 +54,10 @@ PATH_SSL_KEY=/etc/letsencrypt/live/your.domain
 SITE_HOST=your-server-ip
 
 # Порт для агрегатора
-SITE_PORT=1222
+SITE_PORT=443
 
 # Список серверов 3x-UI через пробел. В конце каждого URL обязателен слеш!
-SERVERS=https://example.com/path/ https://example.com/path/
+SERVERS="https://example1.com/path/ https://example2.com/path/ https://example3.com/path/"
 
 # Путь подписки в URL
 SUB=sub
@@ -77,27 +77,25 @@ docker-compose up -d
 
 ## 🌐 Как использовать
 
-Подстановочный URL для клиента:
+Подстановочный URL для клиента (доступен через HTTPS, порт 443):
 
-```text
-http://<SITE_HOST>:<SITE_PORT>/<SUB>/<ваш_subscription-id>
-```
+https://<SITE_HOST>/<SUB>/<subscription-id>
 
 Пример:
 
-```text
-http://123.123.123.123:1222/sub/path
-```
+https://example.com/sub/subscription-id
 
----
+> Примечание: Порт 1222 используется только для внутреннего проброса на Docker-хосте. Для внешних клиентов подключение происходит через стандартный HTTPS-порт (443), поэтому порт в URL указывать не нужно.
 
 ## 🔎 Проверка
 
-Проверьте заголовок `Subscription-Userinfo` с помощью `curl`:
+Проверьте заголовок Subscription-Userinfo с помощью curl:
 
-```bash
-curl -v "http://123.123.123.123:1222/sub/path" 2>&1 | grep -i "subscription-userinfo"
-```
+curl -v "https://example.com/sub/subscription-id" 2>&1 | grep -i "subscription-userinfo"
+
+Ожидаемый вывод (значения могут отличаться):
+
+< subscription-userinfo: upload=187976030; download=3561853884; total=107374182400; expire=1735689600
 
 Ожидаемый ответ:
 
@@ -180,6 +178,9 @@ config_fetcher.lua
 docker-compose.yml
 nginx.conf.esh
 ```
+---
+## 🔗 Исходный проект
+Основано на apa4h/nginx-3x-ui-subscription-proxy
 
 ---
 
@@ -193,4 +194,4 @@ MIT. Свободно используйте, изменяйте и распро
 
 Если есть вопросы или предложения, открывайте `Issue` в репозитории.
 
-Спасибо за использование `x-ui-aggregator`! 😊"""
+Спасибо за использование `x-ui-aggregator`! 😊
