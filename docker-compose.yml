@@ -1,14 +1,12 @@
-version: "3.8"
-
 services:
-  aggregator:
+  nginx-proxy:
     build: .
-    container_name: x-ui-aggregator
-    restart: always
+    container_name: nginx_proxy_sub
+    ports:
+      - "1222:443"
     env_file:
       - .env
-    ports:
-      - "${SITE_PORT}:${SITE_PORT}"
     volumes:
-      - ${PATH_SSL_KEY}/fullchain.pem:/etc/nginx/ssl/fullchain.pem
-      - ${PATH_SSL_KEY}/privkey.pem:/etc/nginx/ssl/privkey.pem
+      - ./config_fetcher.lua:/etc/nginx/lua/config_fetcher.lua
+      - ./ssl:/etc/nginx/ssl
+    restart: unless-stopped
