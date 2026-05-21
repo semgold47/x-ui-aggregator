@@ -1,7 +1,7 @@
 services:
   nginx-proxy:
     build: .
-    container_name: nginx_proxy_sub
+    container_name: 3x-ui-sub-aggregator
     ports:
       - "1222:443"
     env_file:
